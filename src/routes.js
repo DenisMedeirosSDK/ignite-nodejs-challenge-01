@@ -47,8 +47,6 @@ export const routes = [
         return res.end(JSON.stringify({ message: 'É necessário informar o ID' }))
       }
 
-      const checkTaskExist = database.findById()
-
       if (title === '' || title === null && description === '' || description === null) {
         return res.end(JSON.stringify({
           message: 'Necessário, informar pelo menos um dos atributos - title ou description'
@@ -56,6 +54,10 @@ export const routes = [
       }
 
       const updatedTask = database.findById('tasks', id)
+
+      if (updatedTask === undefined) {
+        return res.end(JSON.stringify({ message: 'Tasks não encontrada' }))
+      }
 
       if (title && description) {
         updatedTask.title = title
@@ -88,6 +90,12 @@ export const routes = [
     handler: (req, res) => {
       const { id } = req.params
 
+      const checkTaskExists = database.findById('tasks', id)
+
+      if (checkTaskExists === undefined) {
+        return res.end(JSON.stringify({ message: 'Tasks não encontrada' }))
+      }
+
       database.delete('tasks', id)
 
       return res.end()
@@ -98,6 +106,13 @@ export const routes = [
     path: buildRoutePath('/tasks/:id/complete'),
     handler: (req, res) => {
       const { id } = req.params
+
+      const checkTaskExists = database.findById('tasks', id)
+
+      if (checkTaskExists === undefined) {
+        return res.end(JSON.stringify({ message: 'Tasks não encontrada' }))
+      }
+
 
       const taskById = TASKS.find(task => task.id === id)
       const rowIndex = TASKS.findIndex(row => row.id === id)
